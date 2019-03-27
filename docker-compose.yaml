@@ -1,0 +1,28 @@
+version: "2.3"
+services:
+  app:
+    image: local/kube-nextcloud:latest
+    build:
+      context: images/kube-nextcloud
+    volumes:
+      - nextcloud-data:/var/www/html/data
+      - nextcloud-config:/var/www/html/config
+      - nextcloud-custom_apps:/var/www/html/custom_apps
+    ports:
+      - 8080:8080/tcp
+  db:
+    image: mariadb
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: always
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=changeme
+      - MYSQL_PASSWORD=changeme
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+volumes:
+  nextcloud-data:
+  nextcloud-config:
+  nextcloud-custom_apps:
+  db:
