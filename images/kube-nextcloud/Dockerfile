@@ -9,7 +9,8 @@ LABEL name="kube-nextcloud" \
 RUN yum -y install centos-release-scl bzip2 \
     && yum -y install rh-httpd24 rh-php72 rh-php72-php rh-php72-php-gd rh-php72-php-mbstring \
         rh-php72-php-intl rh-php72-php-pecl-apcu rh-php72-php-mysqlnd rh-php72-php-pecl-redis \
-        rh-php72-php-opcache rh-php72-php-imagick
+        rh-php72-php-opcache rh-php72-php-imagick rh-php72-php-ldap rh-php72-php-pgsql \
+    && yum clean all
 
 # install Nextcloud to /var/www/html
 ENV NEXTCLOUD_VERSION=15.0.5
