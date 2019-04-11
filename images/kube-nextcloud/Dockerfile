@@ -7,7 +7,7 @@ LABEL name="kube-nextcloud" \
 
 # install dependencies (Apache HTTPD 2.4, PHP 7.2, etc)
 RUN yum -y install centos-release-scl bzip2 \
-    && yum -y install rh-httpd24-httpd rh-php72 rh-php72-php rh-php72-php-gd rh-php72-php-mbstring \
+    && yum -y install httpd24-httpd rh-php72 rh-php72-php rh-php72-php-gd rh-php72-php-mbstring \
         rh-php72-php-intl rh-php72-php-pecl-apcu rh-php72-php-mysqlnd rh-php72-php-pecl-redis \
         rh-php72-php-opcache rh-php72-php-pecl-memcached rh-php72-php-imagick rh-php72-php-ldap rh-php72-php-pgsql \
     && yum clean all
