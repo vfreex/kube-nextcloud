@@ -1,7 +1,7 @@
 version: "2.3"
 services:
   app:
-    image: local/kube-nextcloud:latest
+    image: rayson/kube-nextcloud:latest
     build:
       context: images/kube-nextcloud
     volumes:
