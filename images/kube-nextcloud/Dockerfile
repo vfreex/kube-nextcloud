@@ -7,13 +7,13 @@ LABEL name="kube-nextcloud" \
 
 # install dependencies (Apache HTTPD 2.4, PHP 7.2, etc)
 RUN yum -y install centos-release-scl bzip2 \
-    && yum -y install rh-httpd24 rh-php72 rh-php72-php rh-php72-php-gd rh-php72-php-mbstring \
+    && yum -y install rh-httpd24-httpd rh-php72 rh-php72-php rh-php72-php-gd rh-php72-php-mbstring \
         rh-php72-php-intl rh-php72-php-pecl-apcu rh-php72-php-mysqlnd rh-php72-php-pecl-redis \
-        rh-php72-php-opcache rh-php72-php-imagick rh-php72-php-ldap rh-php72-php-pgsql \
+        rh-php72-php-opcache rh-php72-php-pecl-memcached rh-php72-php-imagick rh-php72-php-ldap rh-php72-php-pgsql \
     && yum clean all
 
 # install Nextcloud to /var/www/html
-ENV NEXTCLOUD_VERSION=15.0.5
+ENV NEXTCLOUD_VERSION=15.0.7
 
 RUN DL_DIR=$(mktemp -d) \
     && curl --fail -L -o "${DL_DIR}/nextcloud-${NEXTCLOUD_VERSION}.tar.bz2" \
@@ -61,6 +61,9 @@ RUN { \
 # configure Nextcloud
 COPY config /var/www/html/config
 
+# disable ignore_user_abort: https://github.com/nextcloud/server/issues/15055
+RUN sed -E 's#(ignore_user_abort\(.+\);)#// \1#p' apps/dav/appinfo/*/*.php lib/private/legacy/files.php lib/private/Files/View.php -i
+
 # set up volume directories
 RUN mkdir -p /var/www/html/{data,custom_apps,config} \
     && chown apache:root -R /var/www/html/{data,custom_apps,config} \
@@ -70,6 +73,6 @@ RUN mkdir -p /var/www/html/{data,custom_apps,config} \
 COPY scripts /usr/local/bin
 ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
 CMD [ "/usr/local/bin/run-httpd.sh" ]
-USER 9999:root
+USER 9999:0
 EXPOSE 8080
 WORKDIR /var/www/html
