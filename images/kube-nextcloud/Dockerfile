@@ -29,6 +29,8 @@ RUN DL_DIR=$(mktemp -d) \
     && chown apache:root -R /var/www/html \
     && rm -rf "${DL_DIR}"
 
+WORKDIR /var/www/html
+
 # configurate httpd
 RUN ln -s /opt/rh/httpd24/root/etc/httpd /etc/httpd \
     && sed -i -E 's/^\s*Listen\s+.*/Listen 8080/g' /etc/httpd/conf/httpd.conf \
@@ -36,6 +38,7 @@ RUN ln -s /opt/rh/httpd24/root/etc/httpd /etc/httpd \
     && sed -i -E 's#^\s*CustomLog\s+.*#CustomLog /proc/self/fd/1 combined#g' /etc/httpd/conf/httpd.conf  \
     && chown apache:root -R /opt/rh/httpd24/root/var/run/httpd/ \
     && chmod g+rwX -R /opt/rh/httpd24/root/var/run/httpd/
+
 COPY httpd-conf.d /etc/httpd/conf.d
 
 # configure PHP
@@ -73,6 +76,6 @@ RUN mkdir -p /var/www/html/{data,custom_apps,config} \
 COPY scripts /usr/local/bin
 ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
 CMD [ "/usr/local/bin/run-httpd.sh" ]
-USER 9999:0
+USER apache:root
 EXPOSE 8080
-WORKDIR /var/www/html
+
