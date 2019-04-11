@@ -65,7 +65,7 @@ RUN { \
 COPY config /var/www/html/config
 
 # disable ignore_user_abort: https://github.com/nextcloud/server/issues/15055
-RUN sed -E 's#(ignore_user_abort\(.+\);)#// \1#p' apps/dav/appinfo/*/*.php lib/private/legacy/files.php lib/private/Files/View.php -i
+RUN sed -E 's#(ignore_user_abort\(.+\);)#// \1#g' apps/dav/appinfo/*/*.php lib/private/legacy/files.php lib/private/Files/View.php -i
 
 # set up volume directories
 RUN mkdir -p /var/www/html/{data,custom_apps,config} \
