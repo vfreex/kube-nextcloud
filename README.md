@@ -16,6 +16,7 @@ Comparing with the [official Nextcloud container image](https://github.com/nextc
 5. It is compatible with OpenShift by supporting for running as any UID.
 6. Filelocking is disabled.
 7. Doesn't suffer from [I/O speed loss after interrupted large file downloads](https://github.com/nextcloud/server/issues/15055). 
+8. Disabled permission checks on `config` and `data` directories because they are not reasonable for Kuburnetes volumes.
 
 For more information, check out <https://github.com/nextcloud/docker/issues/381>.
 
