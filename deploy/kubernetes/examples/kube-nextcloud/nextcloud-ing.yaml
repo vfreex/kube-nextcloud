@@ -4,6 +4,10 @@ metadata:
   name: kube-nextcloud
   labels:
     app: kube-nextcloud
+  annotations:
+    nginx.ingress.kubernetes.io/server-snippet: |
+      rewrite ^/\.well-known/carddav /remote.php/dav permanent;
+      rewrite ^/\.well-known/caldav /remote.php/dav permanent;
 spec:
   rules:
   - host: cloud.example.org
