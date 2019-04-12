@@ -29,7 +29,7 @@ spec:
           mkdir -p /vol/nextcloud-data/{config,data,custom_apps}
           chmod 770 /vol/nextcloud-data/data || true
           cp -f /var/www/html/config/* /vol/nextcloud-data/config
-          ln -sf /etc/nextcloud/custom.config.php /vol/nextcloud-data/
+          ln -sf /etc/nextcloud/custom.config.php /vol/nextcloud-data/config/
         volumeMounts:
         - mountPath: /vol/nextcloud-data
           name: nextcloud-data
