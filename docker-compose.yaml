@@ -4,6 +4,11 @@ services:
     image: rayson/kube-nextcloud:latest
     build:
       context: images/kube-nextcloud
+    environment:
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_USER=nextcloud
+      - POSTGRES_PASSWORD=changeme
+      - POSTGRES_HOST=db:5432
     volumes:
       - nextcloud-data:/var/www/html/data
       - nextcloud-config:/var/www/html/config
@@ -11,18 +16,16 @@ services:
     ports:
       - 8080:8080/tcp
   db:
-    image: mariadb
-    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
-    restart: always
+    image: docker.io/centos/postgresql-96-centos7:latest
     volumes:
-      - db:/var/lib/mysql
+      - db:/var/lib/pgsql/data
     environment:
-      - MYSQL_ROOT_PASSWORD=changeme
-      - MYSQL_PASSWORD=changeme
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
+      - POSTGRESQL_USER=nextcloud
+      - POSTGRESQL_PASSWORD=changeme
+      - POSTGRESQL_DATABASE=nextcloud
 volumes:
   nextcloud-data:
   nextcloud-config:
   nextcloud-custom_apps:
   db:
+
