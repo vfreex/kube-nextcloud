@@ -76,6 +76,7 @@ RUN mkdir -p /var/www/html/{data,custom_apps,config} \
 COPY scripts /usr/local/bin
 ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
 CMD [ "/usr/local/bin/run-httpd.sh" ]
-USER apache:root
+# be compatible with OpenShift random UID!
+USER 9999:0
 EXPOSE 8080
 
