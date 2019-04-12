@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: kube-nextcloud-db
+  labels:
+    app: kube-nextcloud-db
+spec:
+  selector:
+    app: kube-nextcloud-db
+  ports:
+  - protocol: TCP
+    port: 5432
+    targetPort: 5432
+

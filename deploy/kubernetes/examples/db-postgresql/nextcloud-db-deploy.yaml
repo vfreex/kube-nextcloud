@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud-db
+  labels:
+    app: nextcloud-db
+spec:
+  strategy:
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-nextcloud-db
+  template:
+    metadata:
+      labels:
+        app: kube-nextcloud-db
+    spec:
+      securityContext:
+        fsGroup: 0
+      containers:
+      - name: postgres
+        image: docker.io/centos/postgresql-96-centos7:latest
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRESQL_DATABASE
+          value: nextcloud
+        envFrom:
+        - secretRef:
+            name: kube-nextcloud-db-secret
+        volumeMounts:
+        - mountPath: /var/lib/pgsql/data
+          name: nextcloud-db
+          subPath: pgsql-data
+      volumes:
+      - name: nextcloud-db
+        persistentVolumeClaim:
+          claimName: kube-nextcloud-db
+

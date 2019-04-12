@@ -1,0 +1,24 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: kube-nextcloud-cronjob
+  labels:
+    app: kube-nextcloud
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          securityContext:
+            runAsUser: 1000
+          containers:
+          - name: nextcloud-cronjob
+            image: busybox
+            args:
+            - /bin/sh
+            - -c
+            - "wget -q -O - --header 'Host: localhost' http://nextcloud/cron.php"
+          restartPolicy: Never
+

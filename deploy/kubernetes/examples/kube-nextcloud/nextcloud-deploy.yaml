@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-nextcloud
+  labels:
+    app: kube-nextcloud
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: kube-nextcloud
+  template:
+    metadata:
+      labels:
+        app: kube-nextcloud
+    spec:
+      securityContext:
+        fsGroup: 0
+      initContainers:
+      - name: init-kube-nextcloud
+        image: docker.io/rayson/kube-nextcloud:latest
+        imagePullPolicy: Always
+        command:
+        - bash
+        - -c
+        - |
+          mkdir -p /vol/nextcloud-data/{config,data,custom_apps}
+          chmod 770 /vol/nextcloud-data/data || true
+          cp -f /var/www/html/config/* /vol/nextcloud-data/config
+          ln -sf /etc/nextcloud/custom.config.php /vol/nextcloud-data/
+        volumeMounts:
+        - mountPath: /vol/nextcloud-data
+          name: nextcloud-data
+      containers:
+      - name: kube-nextcloud
+        image: docker.io/rayson/kube-nextcloud:latest
+        imagePullPolicy: Always
+        env:
+        - name: POSTGRES_DB
+          value: nextcloud
+        - name: POSTGRES_HOST
+          value: kube-nextcloud-db:5432
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: kube-nextcloud-secret
+              key: dbuser
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kube-nextcloud-secret
+              key: dbpassword
+        - name: NEXTCLOUD_DATA_DIR
+          value: /var/www/html/data
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: /var/www/html/data
+          name: nextcloud-data
+          subPath: data
+        - mountPath: /var/www/html/config
+          name: nextcloud-data
+          subPath: config
+        - mountPath: /var/www/html/custom_apps
+          name: nextcloud-data
+          subPath: custom_apps
+        - mountPath: /vol/nextcloud-data
+          name: nextcloud-data
+        - mountPath: /etc/nextcloud
+          name: nextcloud-config
+        livenessProbe:
+          httpGet:
+            path: /status.php
+            port: 8080
+            httpHeaders:
+            - name: Host
+              value: localhost
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: nextcloud-data
+        persistentVolumeClaim:
+          claimName: kube-nextcloud-data
+      - name: nextcloud-config
+        configMap:
+          name: kube-nextcloud-config
+          items:
+          - key: custom.config.php
+            path: custom.config.php
+

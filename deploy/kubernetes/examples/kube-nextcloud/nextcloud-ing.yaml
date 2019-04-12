@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kube-nextcloud
+  labels:
+    app: kube-nextcloud
+spec:
+  rules:
+  - host: cloud.example.org
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: kube-nextcloud
+          servicePort: 8080
