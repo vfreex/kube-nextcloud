@@ -19,6 +19,6 @@ spec:
             args:
             - /bin/sh
             - -c
-            - "wget -q -O - --header 'Host: localhost' http://nextcloud/cron.php"
+            - "wget -q -O - --header 'Host: localhost' http://kube-nextcloud/cron.php"
           restartPolicy: Never
 
