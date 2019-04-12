@@ -13,7 +13,7 @@ data:
       //  array (
       //    0 => 'kube-nextcloud:80',
       //  ),
-      'tempdirectory' => '/tmp/nextcloudtemp',
+      //'tempdirectory' => '/tmp/nextcloudtemp',
       'theme' => '',
       'filesystem_check_changes' => 0,
       'trusted_proxies' => array(
