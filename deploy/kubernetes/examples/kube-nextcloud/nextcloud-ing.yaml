@@ -8,6 +8,11 @@ metadata:
     nginx.ingress.kubernetes.io/server-snippet: |
       rewrite ^/\.well-known/carddav /remote.php/dav permanent;
       rewrite ^/\.well-known/caldav /remote.php/dav permanent;
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "1M"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/client-body-buffer-size: "1M"
 spec:
   rules:
   - host: cloud.example.org
