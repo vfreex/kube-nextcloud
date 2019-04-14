@@ -63,9 +63,15 @@ RUN { \
 
 # configure Nextcloud
 COPY config /var/www/html/config
-
-# disable ignore_user_abort: https://github.com/nextcloud/server/issues/15055
-RUN sed -E 's#(ignore_user_abort\(.+\);)#// \1#g' apps/dav/appinfo/*/*.php lib/private/legacy/files.php lib/private/Files/View.php -i
+COPY patches /usr/local/src/patches
+# apply patches
+RUN \
+  # disable ignore_user_abort: https://github.com/nextcloud/server/issues/15055
+  sed -E 's#(ignore_user_abort\(.+\);)#// \1#g' apps/dav/appinfo/*/*.php lib/private/legacy/files.php lib/private/Files/View.php -i \
+  # improve download speed for large files
+  && yum -y install patch \
+  && patch 3rdparty/sabre/http/lib/Sapi.php < /usr/local/src/patches/0001-Significantly-improve-file-download-speed-by-enablin.patch \
+  && yum clean all
 
 # set up volume directories
 RUN mkdir -p /var/www/html/{data,custom_apps,config} \
