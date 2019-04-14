@@ -1,17 +1,26 @@
---- Sapi-old.php	2019-04-15 01:44:44.451000000 +0800
-+++ Sapi.php	2019-04-15 01:46:42.602000000 +0800
-@@ -75,9 +75,15 @@
-         if ($contentLength !== null) {
-             $output = fopen('php://output', 'wb');
+--- Sapi-old.php	2019-04-16 20:09:51.037000000 +0800
++++ Sapi.php	2019-04-16 20:10:36.751000000 +0800
+@@ -77,7 +77,25 @@
              if (is_resource($body) && get_resource_type($body) == 'stream') {
--                if (PHP_INT_SIZE !== 4){
-+                if (PHP_INT_SIZE > 4) {
+                 if (PHP_INT_SIZE !== 4){
                      // use the dedicated function on 64 Bit systems
 -                    stream_copy_to_stream($body, $output, $contentLength);
-+                    // allow PHP to use mmap by copying in 4MiB chunks
++                    // a workaround to make PHP more possible to use mmap based copy, see https://github.com/sabre-io/http/pull/119
++                    $left = (int)$contentLength;
++                    // copy with 4MiB chunks
 +                    $chunk_size = 4 * 1024 * 1024;
 +                    stream_set_chunk_size($output, $chunk_size);
-+                    $left = $contentLength;
++                    // If this is a partial response, flush the beginning bytes until the first position that is a multiple of the page size.
++                    $contentRange = $response->getHeader('Content-Range');
++                    // Matching "Content-Range: bytes 1234-5678/7890"
++                    if ($contentRange !== null && preg_match('/^bytes\s([0-9]*)-([0-9]*)\//i', $contentRange, $matches) && $matches[1] !== '') {
++                        // 4kB should be the default page size on most architectures
++                        $pageSize = 4096;
++                        $offset = (int)$matches[1];
++                        $delta = ($offset % $pageSize) > 0 ? ($pageSize - $offset % $pageSize) : 0;
++                        if ($delta > 0)
++                            $left -= stream_copy_to_stream($body, $output, $delta);
++                    }
 +                    while ($left > 0) {
 +                        $left -= stream_copy_to_stream($body, $output, min($left, $chunk_size));
 +                    }
