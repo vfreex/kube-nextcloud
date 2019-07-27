@@ -28,4 +28,3 @@ volumes:
   nextcloud-config:
   nextcloud-custom_apps:
   db:
-

@@ -13,7 +13,7 @@ RUN yum -y install centos-release-scl bzip2 \
     && yum clean all
 
 # install Nextcloud to /var/www/html
-ENV NEXTCLOUD_VERSION=15.0.7
+ENV NEXTCLOUD_VERSION=16.0.3
 
 RUN DL_DIR=$(mktemp -d) \
     && curl --fail -L -o "${DL_DIR}/nextcloud-${NEXTCLOUD_VERSION}.tar.bz2" \
@@ -82,7 +82,6 @@ RUN mkdir -p /var/www/html/{data,custom_apps,config} \
 COPY scripts /usr/local/bin
 ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
 CMD [ "/usr/local/bin/run-httpd.sh" ]
+EXPOSE 8080
 # be compatible with OpenShift random UID!
 USER 9999:0
-EXPOSE 8080
-
