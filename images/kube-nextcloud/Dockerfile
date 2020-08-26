@@ -65,11 +65,6 @@ RUN { \
 COPY config /var/www/html/config
 COPY patches /usr/local/src/patches
 # apply patches
-RUN \
-  # improve download speed for large files
-  && yum -y install patch \
-  && patch 3rdparty/sabre/http/lib/Sapi.php < /usr/local/src/patches/0001-Significantly-improve-file-download-speed-by-enablin.patch \
-  && yum clean all
 
 # set up volume directories
 RUN mkdir -p /var/www/html/{data,custom_apps,config} \
