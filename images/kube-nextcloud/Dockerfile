@@ -13,7 +13,7 @@ RUN yum -y install centos-release-scl bzip2 \
     && yum clean all
 
 # install Nextcloud to /var/www/html
-ENV NEXTCLOUD_VERSION=19.0.1
+ENV NEXTCLOUD_VERSION=19.0.5
 
 RUN DL_DIR=$(mktemp -d) \
     && curl --fail -L -o "${DL_DIR}/nextcloud-${NEXTCLOUD_VERSION}.tar.bz2" \
