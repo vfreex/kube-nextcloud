@@ -1,7 +1,6 @@
 <?php
 // kube-nextcloud optimized options
 $CONFIG = array (
-  'filelocking.enabled' => true,
   // Send logs to PHP then finally to stderr
   'log_type' => 'errorlog',
   // Kubernetes users may mount configuration files from ConfigMap.
