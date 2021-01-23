@@ -1,19 +1,19 @@
 # Nextcloud 15 on CentOS 7.6
 # Manual installation instructions: https://docs.nextcloud.com/server/15/admin_manual/installation/source_installation.html#example-installation-on-centos-7-server
-FROM docker.io/centos:7.6.1810
+FROM docker.io/centos:7
 LABEL name="kube-nextcloud" \
     description="Nextcould container image for Kubernetes/OpenShift, based on CentOS 7" \
     maintainer="Yuxiang Zhu <vfreex@gmail.com>"
 
 # install dependencies (Apache HTTPD 2.4, PHP 7.2, etc)
 RUN yum -y install centos-release-scl bzip2 \
-    && yum -y install httpd24-httpd rh-php72 rh-php72-php rh-php72-php-gd rh-php72-php-mbstring \
-        rh-php72-php-intl rh-php72-php-pecl-apcu rh-php72-php-mysqlnd rh-php72-php-pecl-redis \
-        rh-php72-php-opcache rh-php72-php-pecl-memcached rh-php72-php-imagick rh-php72-php-ldap rh-php72-php-pgsql \
+    && yum -y install httpd24-httpd rh-php73 rh-php73-php rh-php73-php-gd rh-php73-php-mbstring \
+        rh-php73-php-intl rh-php73-php-pecl-apcu rh-php73-php-mysqlnd rh-php73-php-pecl-redis \
+        rh-php73-php-opcache rh-php73-php-pecl-memcached rh-php73-php-imagick rh-php73-php-ldap rh-php73-php-pgsql \
     && yum clean all
 
 # install Nextcloud to /var/www/html
-ENV NEXTCLOUD_VERSION=17.0.1
+ENV NEXTCLOUD_VERSION=20.0.2
 
 RUN DL_DIR=$(mktemp -d) \
     && curl --fail -L -o "${DL_DIR}/nextcloud-${NEXTCLOUD_VERSION}.tar.bz2" \
@@ -43,8 +43,8 @@ COPY httpd-conf.d /etc/httpd/conf.d
 
 # configure PHP
 # see https://docs.nextcloud.com/server/15/admin_manual/installation/server_tuning.html#enable-php-opcache
-ENV PHP_CONFIG_DIR=/etc/opt/rh/rh-php72 \
-    PHP_DATA_DIR=/var/opt/rh/rh-php72/lib/php
+ENV PHP_CONFIG_DIR=/etc/opt/rh/rh-php73 \
+    PHP_DATA_DIR=/var/opt/rh/rh-php73/lib/php
 RUN { \
         echo 'opcache.enable=1'; \
         echo 'opcache.enable_cli=1'; \
@@ -57,21 +57,12 @@ RUN { \
     \
     echo 'apc.enable_cli=1' >> "${PHP_CONFIG_DIR}"/php.d/docker-php-ext-apcu.ini; \
     \
-    echo 'memory_limit=512M' > "${PHP_CONFIG_DIR}"/php.d/memory-limit.ini; \
+    echo 'memory_limit=2048M' > "${PHP_CONFIG_DIR}"/php.d/memory-limit.ini; \
     \
     chown apache:root -R "${PHP_DATA_DIR}"/{session,opcache,wsdlcache};
 
 # configure Nextcloud
 COPY config /var/www/html/config
-COPY patches /usr/local/src/patches
-# apply patches
-RUN \
-  # disable ignore_user_abort: https://github.com/nextcloud/server/issues/15055
-  sed -E 's#(ignore_user_abort\(.+\);)#// \1#g' apps/dav/appinfo/*/*.php lib/private/legacy/files.php lib/private/Files/View.php -i \
-  # improve download speed for large files
-  && yum -y install patch \
-  && patch 3rdparty/sabre/http/lib/Sapi.php < /usr/local/src/patches/0001-Significantly-improve-file-download-speed-by-enablin.patch \
-  && yum clean all
 
 # set up volume directories
 RUN mkdir -p /var/www/html/{data,custom_apps,config} \
