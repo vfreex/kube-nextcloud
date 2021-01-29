@@ -68,6 +68,7 @@ COPY config /var/www/html/config
 RUN mkdir -p /var/www/html/{data,custom_apps,config} \
     && chown apache:root -R /var/www/html/{data,custom_apps,config} \
     && chmod u=rwX,g=rwX,o= -R /var/www/html/{data,custom_apps,config,.htaccess,.user.ini}
+    && chmod +x occ
 
 # startup scripts
 COPY scripts /usr/local/bin
