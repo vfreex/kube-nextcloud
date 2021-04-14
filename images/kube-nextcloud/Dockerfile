@@ -1,6 +1,6 @@
 # Nextcloud 15 on CentOS 7.6
 # Manual installation instructions: https://docs.nextcloud.com/server/15/admin_manual/installation/source_installation.html#example-installation-on-centos-7-server
-FROM docker.io/centos:7
+FROM quay.io/centos/centos:centos7
 LABEL name="kube-nextcloud" \
     description="Nextcould container image for Kubernetes/OpenShift, based on CentOS 7" \
     maintainer="Yuxiang Zhu <vfreex@gmail.com>"
