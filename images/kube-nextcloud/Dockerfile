@@ -67,7 +67,7 @@ COPY config /var/www/html/config
 # set up volume directories
 RUN mkdir -p /var/www/html/{data,custom_apps,config} \
     && chown apache:root -R /var/www/html/{data,custom_apps,config} \
-    && chmod u=rwX,g=rwX,o= -R /var/www/html/{data,custom_apps,config,.htaccess,.user.ini}
+    && chmod u=rwX,g=rwX,o= -R /var/www/html/{data,custom_apps,config,.htaccess,.user.ini} \
     && chmod a=rwX /var/www/html/occ
 
 # startup scripts
