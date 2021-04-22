@@ -1,0 +1,132 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: kube-nextcloud
+  labels:
+    app: kube-nextcloud
+spec:
+  strategy:
+    type: Recreate
+    recreateParams:
+      timeoutSeconds: 600
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+    resources: {}
+    activeDeadlineSeconds: 21600
+  triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - nextcloud
+          - init-kube-nextcloud
+        from:
+          kind: ImageStreamTag
+          namespace: nextcloud
+          name: 'nextcloud:latest-ocpbuild'
+    - type: ConfigChange
+  replicas: 1
+  revisionHistoryLimit: 10
+  test: false
+  selector:
+    app: nextcloud
+    deploymentconfig: nextcloud
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: nextcloud
+        deploymentconfig: nextcloud
+      annotations:
+        openshift.io/generated-by: OpenShiftWebConsole
+    spec:
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: nextcloud-data
+          persistentVolumeClaim:
+            claimName: kube-nextcloud-data
+        - name: nextcloud-config
+          configMap:
+            name: kube-nextcloud-config
+            items:
+              - key: custom.config.php
+                path: custom.config.php
+            defaultMode: 420
+      initContainers:
+        - name: init-kube-nextcloud
+          command:
+            - bash
+            - '-c'
+            - >
+              mkdir -p /vol/nextcloud-data/{config,data,custom_apps}
+
+              chmod 770 /vol/nextcloud-data/data || true
+
+              cp -f /var/www/html/config/* /vol/nextcloud-data/config
+
+              ln -sf /etc/nextcloud/custom.config.php
+              /vol/nextcloud-data/config/
+          resources: {}
+          volumeMounts:
+            - name: nextcloud-data
+              mountPath: /vol/nextcloud-data
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      containers:
+        - resources:
+            limits:
+              memory: 2300Mi
+          terminationMessagePath: /dev/termination-log
+          name: nextcloud
+          env:
+            - name: NEXTCLOUD_DATA_DIR
+              value: /var/www/html/data
+            - name: MYSQL_DATABASE
+              value: nexycloud
+            - name: MYSQL_USER
+              value: changeme
+            - name: MYSQL_PASSWORD
+              value: changeme
+            - name: MYSQL_HOST
+              value: changeme
+            - name: REDIS_HOST
+              value: changeme
+            - name: REDIS_HOST_PASS
+              value: changeme
+            - name: HOME
+              value: /var/www/html
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp/nextcloudtemp
+            - name: nextcloud-data
+              mountPath: /var/www/html/data
+              subPath: data
+            - name: nextcloud-data
+              mountPath: /var/www/html/.cache
+              subPath: .cache
+            - name: nextcloud-data
+              mountPath: /var/www/html/config
+              subPath: config
+            - name: nextcloud-data
+              mountPath: /var/www/html/custom_apps
+              subPath: custom_apps
+            - name: nextcloud-data
+              mountPath: /vol/nextcloud-data
+            - name: nextcloud-config
+              mountPath: /etc/nextcloud
+          terminationMessagePolicy: File
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
