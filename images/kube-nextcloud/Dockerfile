@@ -10,6 +10,7 @@ RUN yum -y install centos-release-scl bzip2 \
     && yum -y install httpd24-httpd rh-php73 rh-php73-php rh-php73-php-gd rh-php73-php-mbstring \
         rh-php73-php-intl rh-php73-php-pecl-apcu rh-php73-php-mysqlnd rh-php73-php-pecl-redis \
         rh-php73-php-opcache sclo-php73-php-smbclient rh-php73-php-pecl-memcached rh-php73-php-imagick rh-php73-php-ldap rh-php73-php-pgsql \
+        rh-php73-php-bcmath rh-php73-php-gmp \
     && yum clean all
 
 # install Nextcloud to /var/www/html
