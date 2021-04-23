@@ -14,7 +14,6 @@ RUN yum -y install centos-release-scl bzip2 \
 
 # install Nextcloud to /var/www/html
 ENV NEXTCLOUD_VERSION=21.0.1
-    PATH=$PATH:/opt/rh/rh-php73/root/bin
 
 RUN DL_DIR=$(mktemp -d) \
     && curl --fail -L -o "${DL_DIR}/nextcloud-${NEXTCLOUD_VERSION}.tar.bz2" \
@@ -45,7 +44,9 @@ COPY httpd-conf.d /etc/httpd/conf.d
 # configure PHP
 # see https://docs.nextcloud.com/server/15/admin_manual/installation/server_tuning.html#enable-php-opcache
 ENV PHP_CONFIG_DIR=/etc/opt/rh/rh-php73 \
-    PHP_DATA_DIR=/var/opt/rh/rh-php73/lib/php
+    PHP_DATA_DIR=/var/opt/rh/rh-php73/lib/php \
+    PATH=$PATH:/opt/rh/rh-php73/root/bin
+    
 RUN { \
         echo 'opcache.enable=1'; \
         echo 'opcache.enable_cli=1'; \
