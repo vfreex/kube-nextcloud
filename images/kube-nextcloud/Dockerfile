@@ -14,7 +14,7 @@ RUN yum -y install centos-release-scl bzip2 \
     && yum clean all
 
 # install Nextcloud to /var/www/html
-ENV NEXTCLOUD_VERSION=21.0.1
+ENV NEXTCLOUD_VERSION=21.0.2
 
 RUN DL_DIR=$(mktemp -d) \
     && curl --fail -L -o "${DL_DIR}/nextcloud-${NEXTCLOUD_VERSION}.tar.bz2" \
