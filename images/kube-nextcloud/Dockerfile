@@ -1,6 +1,6 @@
 # Nextcloud 15 on CentOS 7.6
 # Manual installation instructions: https://docs.nextcloud.com/server/15/admin_manual/installation/source_installation.html#example-installation-on-centos-7-server
-FROM docker.io/centos:7
+FROM quay.io/centos/centos:centos7
 LABEL name="kube-nextcloud" \
     description="Nextcould container image for Kubernetes/OpenShift, based on CentOS 7" \
     maintainer="Yuxiang Zhu <vfreex@gmail.com>"
@@ -9,11 +9,12 @@ LABEL name="kube-nextcloud" \
 RUN yum -y install centos-release-scl bzip2 \
     && yum -y install httpd24-httpd rh-php73 rh-php73-php rh-php73-php-gd rh-php73-php-mbstring \
         rh-php73-php-intl rh-php73-php-pecl-apcu rh-php73-php-mysqlnd rh-php73-php-pecl-redis \
-        rh-php73-php-opcache rh-php73-php-pecl-memcached rh-php73-php-imagick rh-php73-php-ldap rh-php73-php-pgsql \
+        rh-php73-php-opcache sclo-php73-php-smbclient rh-php73-php-pecl-memcached rh-php73-php-imagick rh-php73-php-ldap rh-php73-php-pgsql \
+        rh-php73-php-bcmath rh-php73-php-gmp \
     && yum clean all
 
 # install Nextcloud to /var/www/html
-ENV NEXTCLOUD_VERSION=20.0.2
+ENV NEXTCLOUD_VERSION=21.0.5
 
 RUN DL_DIR=$(mktemp -d) \
     && curl --fail -L -o "${DL_DIR}/nextcloud-${NEXTCLOUD_VERSION}.tar.bz2" \
@@ -44,7 +45,9 @@ COPY httpd-conf.d /etc/httpd/conf.d
 # configure PHP
 # see https://docs.nextcloud.com/server/15/admin_manual/installation/server_tuning.html#enable-php-opcache
 ENV PHP_CONFIG_DIR=/etc/opt/rh/rh-php73 \
-    PHP_DATA_DIR=/var/opt/rh/rh-php73/lib/php
+    PHP_DATA_DIR=/var/opt/rh/rh-php73/lib/php \
+    PATH=$PATH:/opt/rh/rh-php73/root/bin
+    
 RUN { \
         echo 'opcache.enable=1'; \
         echo 'opcache.enable_cli=1'; \
@@ -67,7 +70,8 @@ COPY config /var/www/html/config
 # set up volume directories
 RUN mkdir -p /var/www/html/{data,custom_apps,config} \
     && chown apache:root -R /var/www/html/{data,custom_apps,config} \
-    && chmod u=rwX,g=rwX,o= -R /var/www/html/{data,custom_apps,config,.htaccess,.user.ini}
+    && chmod u=rwX,g=rwX,o= -R /var/www/html/{data,custom_apps,config,.htaccess,.user.ini} \
+    && chmod a=rwx /var/www/html/occ
 
 # startup scripts
 COPY scripts /usr/local/bin

@@ -1,8 +1,8 @@
 # Kube-Nextcloud: Nextcloud tailored for Kubernetes / OpenShift
 
 ## Current version
-Nextcloud 15.0.7
-PHP 7.2
+Nextcloud 21.0.1
+PHP 7.3
 
 ## WHAT'S THIS?
 This is a distribution of [Nextcloud](https://nextcloud.com) that is tailored for running on Kubernetes or OpenShift.
